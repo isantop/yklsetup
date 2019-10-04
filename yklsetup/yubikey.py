@@ -10,6 +10,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 yubikey.py - Yubikey-related helper functions.
 """
 
+import logging
 import os
 import subprocess
 
@@ -21,15 +22,20 @@ ykp_options = [
     '-oserial-api-visible'
 ]
 
+log = logging.getLogger('yklsetup.yubikey')
+log.debug('Logging Enabled')
+
 def setup_slot(slot=2):
     ykp_command = [
         'ykpersonalize',
         f'-{slot}',
     ]
+    log.info('Setting up slot %s', slot)
     result = subprocess.run(
         ykp_command + ykp_options, 
         capture_output=True
     )
+    log.debug('setup result: %s', result)
     
     return result.returncode
 
@@ -40,6 +46,8 @@ def make_config(home, slot=2):
         '-v'
     ]
     result = subprocess.run(ykp_command, capture_output=True)
+
+    log.debug('config result: %s', result)
     
     try:
         initial_path = result.stdout.decode('UTF-8').split("'")[1]
