@@ -110,6 +110,12 @@ def main():
         log.addHandler(journald_log)
 
     log.setLevel(logging.DEBUG)
+    if os.geteuid() == 0:
+        log.error(
+            'This utility is not intended to be run as root. Please re-run '
+            'without root privileges/sudo.'
+        )
+        exit(1)
 
     slot = 2
     if args.one:
