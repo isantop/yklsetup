@@ -1,0 +1,75 @@
+#!/usr/bin/python3
+
+"""
+ Copyright 2017-2018 Ian Santopietro <isantop@gmail.com>
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+yklsetup - Command line client.
+"""
+
+import argparse
+import logging
+
+import yklsetup
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Set up a Yubikey login for GNOME desktop'
+    )
+
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        action=count,
+        help='Increase program verbosity.'
+    )
+
+    slot = parser.add_mutually_exclusive_group(
+        help='Which slot to use.'
+    )
+
+    slot.add_argument(
+        '-1',
+        action='store_true'
+        help=argparse.SUPPRESS
+    )
+    slot.add_argument(
+        '-2',
+        action='store_false'
+        help=argparse.SUPPRESS
+    )
+
+    parser.add_argument(
+        '-d',
+        '--deauthorize',
+        action='store_true',
+        help='Remove Yubikey login.'
+    )
+
+    parser.add_argument(
+        '-R',
+        '--required',
+        action='store_true',
+        help='Makes the Yubikey required for login.'
+    )
+
+    args = parser.parse_args()
+
+    slot = 2
+    if args.1:
+        slot = 1
+    
+    if args.deauthorize:
+        pass
+
+    req = 'sufficient'
+    if args.required:
+        req = 'required'
+    
+    yklsetup.yubikey.setup_slot(slot=slot)
+    user_home = yklsetup.system.get_user_home()
+    key = yklsetup.yubikey.make_config(user_home, slot=slot)
+    print(key)
