@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=ro.santopiet.yklsetup
+Exec=/usr/bin/python3 /usr/lib/yklsetup/yklsetupservice.py
+User=root
