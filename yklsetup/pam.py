@@ -31,5 +31,8 @@ def get_pam_config(req='sufficient'):
 def modify_pam_files(req='sufficient'):
     pam_config = get_pam_config(req=req)
     for pam_file in pam_files:
-        _remote_object.prepend_line(pam_file, pam_config)
+        _remote_object.prepend_line(pam_file, pam_config, base_pam_config)
 
+def deauthorize_pam():
+    for pam_file in pam_files:
+        _remote_object.remove_line(pam_file, base_pam_config)

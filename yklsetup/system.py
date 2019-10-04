@@ -44,3 +44,6 @@ def privilged_move_file(src, dest, executable=False):
         raise exc
 
     return moved_file
+
+def privilged_delete_file(path):
+    _remote_object.remove_file(path)

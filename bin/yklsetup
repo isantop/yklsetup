@@ -116,7 +116,9 @@ def main():
         slot = 1
     
     if args.deauthorize:
-        pass
+        yklsetup.pam.deauthorize_pam()
+        yklsetup.system.privilged_delete_file
+        return
 
     req = 'sufficient'
     if args.required:
@@ -138,6 +140,7 @@ def main():
 
     log.info('Setting up PAM configuration')
     yklsetup.pam.modify_pam_files(req=req)
+    return
 
 if __name__ == '__main__':
     main()

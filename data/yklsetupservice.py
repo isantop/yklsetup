@@ -104,19 +104,53 @@ class YklsetupObject(dbus.service.Object):
         return dest
     
     @dbus.service.method(
-        "ro.santopiet.yklsetup.Config",
-        in_signature='ss', out_signature='',
+        "ro.santopiet.yklsetup.Directories",
+        in_signature='s', out_signature='s',
         sender_keyword='sender', connection_keyword='conn'
     )
-    def prepend_line(self, path, prepend, sender=None, conn=None):
+    def remove_file(self, path, sender=None, conn=None):
+        self._check_polkit_privilege(
+            sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
+        )
+        
+        os.remove(path)
+        return path
+    
+    @dbus.service.method(
+        "ro.santopiet.yklsetup.Config",
+        in_signature='sss', out_signature='',
+        sender_keyword='sender', connection_keyword='conn'
+    )
+    def prepend_line(self, path, prepend, match, sender=None, conn=None):
         self._check_polkit_privilege(
             sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
         )
 
         with open(path, 'r+') as f:
             content = f.read()
-            f.seek(0, 0)
-            f.write(prepend.rstrip('\r\n') + '\n' + content)
+            if not match in content:
+                f.seek(0, 0)
+                f.write(prepend.rstrip('\r\n') + '\n' + content)
+    
+    @dbus.service.method(
+        "ro.santopiet.yklsetup.Config",
+        in_signature='ss', out_signature='',
+        sender_keyword='sender', connection_keyword='conn'
+    )
+    def remove_line(self, path, match, sender=None, conn=None):
+        self._check_polkit_privilege(
+            sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
+        )
+
+        outpath = path
+        inpath = f'{path}-old'
+        os.rename(outpath, inpath)
+
+        with open(inpath) as infile, open(outpath, mode='x') as outfile:
+            for line in infile:
+                if not match in line:
+                    outfile.write(line)
+        os.remove(inpath)
 
     @dbus.service.method(
         "ro.santopiet.yklsetup.Config",
