@@ -11,7 +11,7 @@ Portions of test-related code authored by Jason DeRose <jason@system76.com>
 """
 
 
-from setuptools import setup
+from distutils.core import setup
 from distutils.cmd import Command
 import os
 import subprocess
@@ -90,12 +90,11 @@ class Test(Command):
 
 setup(
     name='yklsetup',
-    version='0.0.1',
+    version='0.0.2',
     author='Ian Santopietro',
     author_email='isantop@gmail.com',
     url='https://github.com/isantop/yklsetup',
     description='A simple tool to set up Yubikey login on a GNOME Desktop',
-    tests_require=['pytest'],
     license='ISC',
     packages=['yklsetup'],
     scripts=['bin/yklsetup'],

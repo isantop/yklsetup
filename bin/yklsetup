@@ -23,7 +23,7 @@ def main():
     parser.add_argument(
         '-v',
         '--verbose',
-        action=count,
+        action="count",
         help='Increase program verbosity.'
     )
 
@@ -33,12 +33,14 @@ def main():
 
     slot.add_argument(
         '-1',
-        action='store_true'
+        '--one',
+        action='store_true',
         help=argparse.SUPPRESS
     )
     slot.add_argument(
         '-2',
-        action='store_false'
+        '--two',
+        action='store_false',
         help=argparse.SUPPRESS
     )
 
@@ -59,7 +61,7 @@ def main():
     args = parser.parse_args()
 
     slot = 2
-    if args.1:
+    if args.one:
         slot = 1
     
     if args.deauthorize:
