@@ -12,10 +12,22 @@ yklsetup - Command line client.
 
 import argparse
 import logging
+from logging import handlers
+import os
 
 import yklsetup
 
+# Try detecting systemd support
+SYSTEMD_SUPPORT = False
+try:
+    from systemd.journal import JournalHandler
+    SYSTEMD_SUPPORT = True
+
+except ImportError:
+    pass
+
 def main():
+    user_home = yklsetup.system.get_user_home()
     parser = argparse.ArgumentParser(
         description='Set up a Yubikey login for GNOME desktop'
     )
@@ -27,9 +39,7 @@ def main():
         help='Increase program verbosity.'
     )
 
-    slot = parser.add_mutually_exclusive_group(
-        help='Which slot to use.'
-    )
+    slot = parser.add_mutually_exclusive_group()
 
     slot.add_argument(
         '-1',
@@ -60,6 +70,47 @@ def main():
 
     args = parser.parse_args()
 
+    level = {
+        0 : logging.WARNING,
+        1 : logging.INFO,
+        2 : logging.DEBUG,
+    }
+    verbosity = 0
+    if args.verbose:
+        verbosity = args.verbose
+    if verbosity >= 3:
+        verbosity = 2
+    console_level = level[verbosity]
+    file_level = level[1]
+
+    stream_fmt = logging.Formatter(
+        '%(levelname)s: %(message)s')
+    file_fmt = logging.Formatter(
+        '%(asctime)s - %(name)s: %(levelname)s: %(message)s')
+    log = logging.getLogger('yklsetup')
+
+    console_log = logging.StreamHandler()
+    console_log.setFormatter(stream_fmt)
+    console_log.setLevel(console_level)
+
+    log_path = os.path.join(user_home, '.log')
+    os.makedirs(log_path, exist_ok=True)
+    file_log = handlers.RotatingFileHandler(
+        os.path.join(log_path, 'yklsetup.log'), maxBytes=(1048576*5), backupCount=5)
+    file_log.setFormatter(file_fmt)
+    file_log.setLevel(file_level)
+
+    log.addHandler(console_log)
+    log.addHandler(file_log)
+
+    if SYSTEMD_SUPPORT:
+        journald_log = JournalHandler()
+        journald_log.setLevel(file_level)
+        journald_log.setFormatter(stream_fmt)
+        log.addHandler(journald_log)
+
+    log.setLevel(logging.DEBUG)
+
     slot = 2
     if args.one:
         slot = 1
@@ -71,7 +122,19 @@ def main():
     if args.required:
         req = 'required'
     
+    log.info('Setting up in slot %s', slot)
     yklsetup.yubikey.setup_slot(slot=slot)
-    user_home = yklsetup.system.get_user_home()
+
+    log.info('Creating initial challenge.')
     key = yklsetup.yubikey.make_config(user_home, slot=slot)
-    print(key)
+    log.debug(key)
+
+    log.info('Ensuring the main system configuration directory exists.')
+    yklsetup.system.ensure_sys_config_dir()
+
+    challenge_path = f'/var/yubico/{yklsetup.system.get_username()}-{key[2]}'
+    log.info('Moving initial challenge from %s to %s', key[0], challenge_path)
+    yklsetup.system.privilged_move_file(key[0], challenge_path)
+
+if __name__ == '__main__':
+    main()

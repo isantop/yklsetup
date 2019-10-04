@@ -27,7 +27,7 @@ def setup_slot(slot=2):
         f'-{slot}',
     ]
     result = subprocess.run(
-        ykp_command + self.ykp_options, 
+        ykp_command + ykp_options, 
         capture_output=True
     )
     

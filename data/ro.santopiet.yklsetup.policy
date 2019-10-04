@@ -8,10 +8,10 @@
 <policyconfig>
 
   <vendor>yklsetup</vendor>
-  <vendor_url>https://github.com/isantop/ylksetup</vendor_url>
+  <vendor_url>https://github.com/isantop/yklsetup</vendor_url>
   <icon_name>preferences-system</icon_name>
 
-  <action id="ro.santopiet.ylksetup.setup-yubikey">
+  <action id="ro.santopiet.yklsetup.setup-yubikey">
     <description>Sets up a Yubikey for login on the system.</description>
     <message>System policy prevents you modifying login settings.</message>
     <defaults>

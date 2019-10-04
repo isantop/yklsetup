@@ -17,7 +17,7 @@ import sys
 
 bus = dbus.SystemBus()
 _remote_object = bus.get_object(
-    'ro.santopiet.yklsetup', '/YklseupObject'
+    'ro.santopiet.yklsetup', '/YklsetupObject'
 )
 
 def ensure_sys_config_dir(path='/var/yubico'):

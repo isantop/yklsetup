@@ -100,6 +100,8 @@ class YklsetupObject(dbus.service.Object):
             raise YklsetupException(
                 f'Could not set perms of file {dest} to {mode}.'
             )
+        
+        return dest
     
     @dbus.service.method(
         "ro.santopiet.yklsetup.Config",
