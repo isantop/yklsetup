@@ -12,4 +12,4 @@ __init--.py - Basic module init.
 
 from . import yubikey
 from . import system
-
+from . import pam

@@ -105,6 +105,21 @@ class YklsetupObject(dbus.service.Object):
     
     @dbus.service.method(
         "ro.santopiet.yklsetup.Config",
+        in_signature='ss', out_signature='',
+        sender_keyword='sender', connection_keyword='conn'
+    )
+    def prepend_line(self, path, prepend, sender=None, conn=None):
+        self._check_polkit_privilege(
+            sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
+        )
+
+        with open(path, 'r+') as f:
+            content = f.read()
+            f.seek(0, 0)
+            f.write(prepend.rstrip('\r\n') + '\n' + content)
+
+    @dbus.service.method(
+        "ro.santopiet.yklsetup.Config",
         in_signature='', out_signature='',
         sender_keyword='sender', connection_keyword='conn'
     )

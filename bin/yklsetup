@@ -136,5 +136,8 @@ def main():
     log.info('Moving initial challenge from %s to %s', key[0], challenge_path)
     yklsetup.system.privilged_move_file(key[0], challenge_path)
 
+    log.info('Setting up PAM configuration')
+    yklsetup.pam.modify_pam_files(req=req)
+
 if __name__ == '__main__':
     main()
