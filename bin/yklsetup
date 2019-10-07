@@ -45,13 +45,13 @@ def main():
         '-1',
         '--one',
         action='store_true',
-        help=argparse.SUPPRESS
+        help='Use slot 1 for configuration.'
     )
     slot.add_argument(
         '-2',
         '--two',
         action='store_false',
-        help=argparse.SUPPRESS
+        help='Use slot 2 for configuration. Default'
     )
 
     parser.add_argument(
@@ -62,10 +62,40 @@ def main():
     )
 
     parser.add_argument(
+        '-p',
+        '--pam-uninstall',
+        action='store_true',
+        help=(
+            'Remove PAM configuration if present. '
+            'Disables Yubikey login system-wide.'
+        )
+    )
+
+    req_group = parser.add_mutually_exclusive_group()
+
+    req_group.add_argument(
         '-R',
         '--required',
         action='store_true',
         help='Makes the Yubikey required for login.'
+    )
+    req_group.add_argument(
+        '-s',
+        '--sufficient',
+        action='store_false',
+        help='Allows either password or yubikey login.'
+    )
+
+    """
+    This option will quit the dbus service so that it 
+    can reload after modifications. It is only really
+    useful as a dev-option.
+    """
+    parser.add_argument(
+        '-q',
+        '--quit-service',
+        action='store_true',
+        help=argparse.SUPPRESS
     )
 
     args = parser.parse_args()
@@ -118,15 +148,27 @@ def main():
             'without root privileges/sudo.'
         )
         exit(1)
+    
+    # These are our one-shot commands. They can be grouped, but we
+    # should exit without installed if they're passed.
+    if args.deauthorize:
+        yklsetup.system.deauthorize_yuibikey()
+        completed = True
+    
+    if args.quit_service:
+        yklsetup.system.quit_service()
+        completed = True
+    
+    if args.pam_uninstall:
+        yklsetup.pam.deauthorize_pam()
+        completed = True
+    
+    if completed:
+        return
 
     slot = 2
     if args.one:
         slot = 1
-    
-    if args.deauthorize:
-        yklsetup.pam.deauthorize_pam()
-        yklsetup.system.privilged_delete_file
-        return
 
     req = 'sufficient'
     if args.required:
@@ -147,6 +189,8 @@ def main():
     yklsetup.system.privilged_move_file(key[0], challenge_path)
 
     log.info('Setting up PAM configuration')
+    if args.required or args.sufficient:
+        yklsetup.pam.deauthorize_pam()
     yklsetup.pam.modify_pam_files(req=req)
     return
 

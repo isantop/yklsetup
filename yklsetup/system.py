@@ -47,3 +47,14 @@ def privilged_move_file(src, dest, executable=False):
 
 def privilged_delete_file(path):
     _remote_object.remove_file(path)
+
+def quit_service():
+    _remote_object.Exit()
+
+def deauthorize_yuibikey():
+    auths = _remote_object.list_dir()
+    
+    for auth in auths:
+        if get_username() in auth:
+            path = os.path.join('/var/yubico', auth)
+            _remote_object.remove_file(path)

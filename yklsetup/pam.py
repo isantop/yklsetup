@@ -12,6 +12,19 @@ pam.py - helper functions for pam config files.
 
 import dbus
 import os
+import glob
+
+class PamException(Exception):
+    """Raised when we failed an operation with PAM.
+
+    Arguments: 
+        msg (str): Human-readable message describing the error that threw the 
+            exception.
+        code (:obj:`int`, optional, default=1): Exception error code.
+    """
+    def __init__(self, msg, code=1):
+        self.msg = msg
+        self.code = code
 
 bus = dbus.SystemBus()
 _remote_object = bus.get_object(
@@ -36,3 +49,4 @@ def modify_pam_files(req='sufficient'):
 def deauthorize_pam():
     for pam_file in pam_files:
         _remote_object.remove_line(pam_file, base_pam_config)
+
