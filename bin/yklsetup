@@ -16,7 +16,6 @@ from logging import handlers
 import os
 
 import yklsetup
-from yklsetup import gui
 
 # Try detecting systemd support
 SYSTEMD_SUPPORT = False
@@ -28,7 +27,6 @@ except ImportError:
     pass
 
 def main():
-    user_home = yklsetup.system.get_user_home()
     parser = argparse.ArgumentParser(
         description='Set up a Yubikey login for GNOME desktop'
     )
@@ -131,6 +129,7 @@ def main():
     console_log.setFormatter(stream_fmt)
     console_log.setLevel(console_level)
 
+    user_home = yklsetup.system.get_user_home()
     log_path = os.path.join(user_home, '.log')
     os.makedirs(log_path, exist_ok=True)
     file_log = handlers.RotatingFileHandler(
@@ -156,8 +155,11 @@ def main():
             'without root privileges/sudo.'
         )
         exit(1)
+
     if args.gui:
-        gui.main()
+        from yklsetup.gui.guimain import Application
+        app = Application()
+        app.run()
         return
     
     # These are our one-shot commands. They can be grouped, but we
