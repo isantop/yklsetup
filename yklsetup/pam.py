@@ -38,6 +38,9 @@ pam_files = [
     '/etc/pam.d/gdm-password'
 ]
 
+def check_pam_configured():
+    return _remote_object.check_pam()
+
 def get_pam_config(req='sufficient'):
     return f'auth {req} {base_pam_config}'
 

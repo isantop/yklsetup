@@ -51,8 +51,18 @@ def privilged_delete_file(path):
 def quit_service():
     _remote_object.Exit()
 
+def restart_service():
+    global _remote_object
+    _remote_object.Exit()
+    _remote_object = bus.get_object(
+        'ro.santopiet.yklsetup', '/YklsetupObject'
+    )
+
+def get_auths():
+    return _remote_object.list_auths()
+
 def deauthorize_yuibikey():
-    auths = _remote_object.list_dir()
+    auths = get_auths()
     
     for auth in auths:
         if get_username() in auth:

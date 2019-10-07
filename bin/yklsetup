@@ -27,7 +27,6 @@ except ImportError:
     pass
 
 def main():
-    user_home = yklsetup.system.get_user_home()
     parser = argparse.ArgumentParser(
         description='Set up a Yubikey login for GNOME desktop'
     )
@@ -86,6 +85,13 @@ def main():
         help='Allows either password or yubikey login.'
     )
 
+    parser.add_argument(
+        '-g',
+        '--gui',
+        action='store_true',
+        help='Run the YklSetup GUI.'
+    )
+
     """
     This option will quit the dbus service so that it 
     can reload after modifications. It is only really
@@ -123,6 +129,7 @@ def main():
     console_log.setFormatter(stream_fmt)
     console_log.setLevel(console_level)
 
+    user_home = yklsetup.system.get_user_home()
     log_path = os.path.join(user_home, '.log')
     os.makedirs(log_path, exist_ok=True)
     file_log = handlers.RotatingFileHandler(
@@ -148,9 +155,16 @@ def main():
             'without root privileges/sudo.'
         )
         exit(1)
+
+    if args.gui:
+        from yklsetup.gui.guimain import Application
+        app = Application()
+        app.run()
+        return
     
     # These are our one-shot commands. They can be grouped, but we
     # should exit without installed if they're passed.
+    completed = False
     if args.deauthorize:
         yklsetup.system.deauthorize_yuibikey()
         completed = True

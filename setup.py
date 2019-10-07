@@ -96,7 +96,7 @@ setup(
     url='https://github.com/isantop/yklsetup',
     description='A simple tool to set up Yubikey login on a GNOME Desktop',
     license='ISC',
-    packages=['yklsetup'],
+    packages=['yklsetup', 'yklsetup.gui'],
     scripts=['bin/yklsetup'],
     cmdclass={'test': Test},
     data_files = [
