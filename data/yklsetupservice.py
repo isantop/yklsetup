@@ -133,9 +133,8 @@ class YklsetupObject(dbus.service.Object):
         try:
             dirs = os.listdir(path)
         except FileNotFoundError:
-            raise YklsetupException(
-                f'Could not get the contents of {path}.'
-            )
+            os.makedirs('var/yubico')
+            dirs = []
 
         return dirs
     
