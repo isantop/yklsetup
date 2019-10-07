@@ -12,7 +12,7 @@ gui.py - the GUI for yklsetup
 import os
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk, GdkPixbuf
 from .headerbar import Headerbar
 
 import yklsetup
@@ -64,7 +64,6 @@ class Window(Gtk.Window):
         
         username = yklsetup.system.get_username()
         user_avatar_path = yklsetup.system.get_user_avatar_path().strip()
-        print(user_avatar_path)
 
         self.user_avatar = Gtk.Grid()
         self.user_avatar.props.row_spacing = 6
@@ -77,16 +76,26 @@ class Window(Gtk.Window):
         self.content_grid.attach(self.user_avatar, 0, 1, 1, 1)
 
         if os.path.exists(user_avatar_path):
-            print(f'{user_avatar_path} exists')
             self.user_avatar_image = Gtk.Image()
             self.user_avatar_image.set_from_file(user_avatar_path)
+            av_pixbuf_us = self.user_avatar_image.get_pixbuf()
+            av_pixbuf = av_pixbuf_us.scale_simple(
+                96,
+                96,
+                GdkPixbuf.InterpType.BILINEAR
+            )
+            self.user_avatar_image.set_from_pixbuf(av_pixbuf)
         else:
-            print(f'{user_avatar_path} doesn\'t exist')
             icon_theme = Gtk.IconTheme.get_default()
-            icon_pixbuf = icon_theme.load_icon(
+            icon_pixbuf_us = icon_theme.load_icon(
                 'avatar-default',
-                64,
+                256,
                 0
+            )
+            icon_pixbuf = icon_pixbuf_us.scale_simple(
+                96,
+                96,
+                GdkPixbuf.InterpType.BILINEAR
             )
             self.user_avatar_image = Gtk.Image.new_from_pixbuf(icon_pixbuf)
         self.user_avatar.attach(self.user_avatar_image, 0, 0, 1, 1)
