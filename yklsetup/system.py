@@ -52,7 +52,7 @@ def quit_service():
     _remote_object.Exit()
 
 def deauthorize_yuibikey():
-    auths = _remote_object.list_dir()
+    auths = _remote_object.list_dir('/var/yubico')
     
     for auth in auths:
         if get_username() in auth:

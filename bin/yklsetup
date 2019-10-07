@@ -16,6 +16,7 @@ from logging import handlers
 import os
 
 import yklsetup
+from yklsetup import gui
 
 # Try detecting systemd support
 SYSTEMD_SUPPORT = False
@@ -86,6 +87,13 @@ def main():
         help='Allows either password or yubikey login.'
     )
 
+    parser.add_argument(
+        '-g',
+        '--gui',
+        action='store_true',
+        help='Run the YklSetup GUI.'
+    )
+
     """
     This option will quit the dbus service so that it 
     can reload after modifications. It is only really
@@ -148,9 +156,13 @@ def main():
             'without root privileges/sudo.'
         )
         exit(1)
+    if args.gui:
+        gui.main()
+        return
     
     # These are our one-shot commands. They can be grouped, but we
     # should exit without installed if they're passed.
+    completed = False
     if args.deauthorize:
         yklsetup.system.deauthorize_yuibikey()
         completed = True
