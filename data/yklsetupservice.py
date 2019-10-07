@@ -112,9 +112,30 @@ class YklsetupObject(dbus.service.Object):
         self._check_polkit_privilege(
             sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
         )
-        
-        os.remove(path)
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+
         return path
+    
+    @dbus.service.method(
+        "ro.santopiet.yklsetup.Directories",
+        in_signature='s', out_signature='as',
+        sender_keyword='sender', connection_keyword='conn'
+    )
+    def list_dir(self, path, sender=None, conn=None):
+        self._check_polkit_privilege(
+            sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
+        )
+        try:
+            dirs = os.listdir(path)
+        except FileNotFoundError:
+            raise YklsetupException(
+                f'Could not get the contents of {path}.'
+            )
+
+        return dirs
     
     @dbus.service.method(
         "ro.santopiet.yklsetup.Config",
@@ -126,11 +147,16 @@ class YklsetupObject(dbus.service.Object):
             sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
         )
 
-        with open(path, 'r+') as f:
-            content = f.read()
-            if not match in content:
-                f.seek(0, 0)
-                f.write(prepend.rstrip('\r\n') + '\n' + content)
+        try:
+            with open(path, 'r+') as f:
+                content = f.read()
+                if not match in content:
+                    f.seek(0, 0)
+                    f.write(prepend.rstrip('\r\n') + '\n' + content)
+        except FileNotFoundError:
+            raise YklsetupException(
+                f'Could not open the file {path} for editing.'
+            )
     
     @dbus.service.method(
         "ro.santopiet.yklsetup.Config",
