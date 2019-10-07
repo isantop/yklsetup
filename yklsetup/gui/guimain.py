@@ -21,7 +21,7 @@ class Application(Gtk.Application):
     def do_activate(self):
         self.log = logging.getLogger('yklsetup.gui')
         self.window = Window()
-        self.window.set_default_size(700, 400)
+        self.window.set_default_size(400, 300)
         self.window.connect('delete-event', Gtk.main_quit)
         self.window.show_all()
         

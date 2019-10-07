@@ -20,4 +20,13 @@
       <allow_active>auth_admin_keep</allow_active>
     </defaults>
   </action>
+  <action id="ro.santopiet.yklsetup.low-privilege">
+    <description>Sets up a Yubikey for login on the system.</description>
+    <message>System policy prevents you modifying login settings.</message>
+    <defaults>
+      <allow_any>yes</allow_any>
+      <allow_inactive>auth_admin_keep</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+  </action>
 </policyconfig> 

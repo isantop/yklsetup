@@ -121,13 +121,15 @@ class YklsetupObject(dbus.service.Object):
     
     @dbus.service.method(
         "ro.santopiet.yklsetup.Directories",
-        in_signature='s', out_signature='as',
+        in_signature='', out_signature='as',
         sender_keyword='sender', connection_keyword='conn'
     )
-    def list_dir(self, path, sender=None, conn=None):
+    def list_auths(self, sender=None, conn=None):
         self._check_polkit_privilege(
-            sender, conn, 'ro.santopiet.yklsetup.setup-yubikey'
+            sender, conn, 'ro.santopiet.yklsetup.low-privilege'
         )
+
+        path = '/var/yubico'
         try:
             dirs = os.listdir(path)
         except FileNotFoundError:
@@ -136,6 +138,32 @@ class YklsetupObject(dbus.service.Object):
             )
 
         return dirs
+    
+    @dbus.service.method(
+        "ro.santopiet.yklsetup.Config",
+        in_signature='', out_signature='b',
+        sender_keyword='sender', connection_keyword='conn'
+    )
+    def check_pam(self, sender=None, conn=None):
+        self._check_polkit_privilege(
+            sender, conn, 'ro.santopiet.yklsetup.low-privilege'
+        )
+
+        base_pam_config = 'pam_yubico.so mode=challenge-response chalresp_path=/var/yubico'
+        pam_files = [
+            '/etc/pam.d/common-auth',
+            '/etc/pam.d/login',
+            '/etc/pam.d/gdm-password'
+        ]
+        for file in pam_files:
+            with open(file, mode='r') as pam_file:
+                content = pam_file.read()
+                if base_pam_config in content:
+                    pass
+                else:
+                    return False
+        
+        return True
     
     @dbus.service.method(
         "ro.santopiet.yklsetup.Config",

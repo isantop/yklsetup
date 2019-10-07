@@ -14,12 +14,14 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-class Headerbar(Gtk.HeaderBar):
+import yklsetup
 
-    ppa_name = False
+class Headerbar(Gtk.HeaderBar):
 
     def __init__(self):
         Gtk.HeaderBar.__init__(self)
 
         self.set_show_close_button(True)
         self.set_has_subtitle(False)
+        self.props.title = 'Yubikey Login'
+
