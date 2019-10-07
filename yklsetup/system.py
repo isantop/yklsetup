@@ -36,6 +36,10 @@ def get_username():
 def get_user_home():
     return os.path.expanduser('~')
 
+def get_user_avatar_path():
+    user = get_username()
+    return _remote_object.get_user_icon_path(user)
+
 def privilged_move_file(src, dest, executable=False):
     try:
         moved_file = _remote_object.move_file(src, dest, executable)

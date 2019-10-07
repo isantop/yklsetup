@@ -139,6 +139,26 @@ class YklsetupObject(dbus.service.Object):
         return dirs
     
     @dbus.service.method(
+        "ro.santopiet.yklsetup.Directories",
+        in_signature='s', out_signature='s',
+        sender_keyword='sender', connection_keyword='conn'
+    )
+    def get_user_icon_path(self, user, sender=None, conn=None):
+        self._check_polkit_privilege(
+            sender, conn, 'ro.santopiet.yklsetup.low-privilege'
+        )
+
+        user_path = os.path.join(
+            '/var/lib/AccountsService/users',
+            user
+        )
+        with open(user_path, mode='r') as user_file:
+            for line in user_file.readlines():
+                if 'Icon' in line:
+                    return '='.join(line.split('=')[1:])
+        return 'Icon Not Found'
+    
+    @dbus.service.method(
         "ro.santopiet.yklsetup.Config",
         in_signature='', out_signature='b',
         sender_keyword='sender', connection_keyword='conn'

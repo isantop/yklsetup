@@ -63,10 +63,8 @@ class Window(Gtk.Window):
         self.show_infobar()
         
         username = yklsetup.system.get_username()
-        user_avatar_path = os.path.join(
-            '/var/lib/AccountsService/icons',
-            username
-        )
+        user_avatar_path = yklsetup.system.get_user_avatar_path().strip()
+        print(user_avatar_path)
 
         self.user_avatar = Gtk.Grid()
         self.user_avatar.props.row_spacing = 6
@@ -79,9 +77,11 @@ class Window(Gtk.Window):
         self.content_grid.attach(self.user_avatar, 0, 1, 1, 1)
 
         if os.path.exists(user_avatar_path):
+            print(f'{user_avatar_path} exists')
             self.user_avatar_image = Gtk.Image()
             self.user_avatar_image.set_from_file(user_avatar_path)
         else:
+            print(f'{user_avatar_path} doesn\'t exist')
             icon_theme = Gtk.IconTheme.get_default()
             icon_pixbuf = icon_theme.load_icon(
                 'avatar-default',
