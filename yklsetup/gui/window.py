@@ -78,9 +78,17 @@ class Window(Gtk.Window):
         self.user_avatar.props.valign = Gtk.Align.END
         self.content_grid.attach(self.user_avatar, 0, 1, 1, 1)
 
-        self.user_avatar_image = Gtk.Image()
-        self.user_avatar_image.props.hexpand = True
-        self.user_avatar_image.set_from_file(user_avatar_path)
+        if os.path.exists(user_avatar_path):
+            self.user_avatar_image = Gtk.Image()
+            self.user_avatar_image.set_from_file(user_avatar_path)
+        else:
+            icon_theme = Gtk.IconTheme.get_default()
+            icon_pixbuf = icon_theme.load_icon(
+                'avatar-default',
+                64,
+                0
+            )
+            self.user_avatar_image = Gtk.Image.new_from_pixbuf(icon_pixbuf)
         self.user_avatar.attach(self.user_avatar_image, 0, 0, 1, 1)
         
         self.user_label = Gtk.Label(username)
