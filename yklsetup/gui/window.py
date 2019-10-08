@@ -78,11 +78,26 @@ class Window(Gtk.Window):
         self.user_avatar.props.valign = Gtk.Align.END
         self.content_grid.attach(self.user_avatar, 0, 1, 1, 1)
 
-        drawing_area = Gtk.DrawingArea()
-        drawing_area.connect('draw', self.do_drawing, user_avatar_path)
-        drawing_area.props.width_request = 96
-        drawing_area.props.height_request = 96
-        self.user_avatar.attach(drawing_area, 0, 0, 1, 1)
+        if os.path.exists(user_avatar_path):
+            drawing_area = Gtk.DrawingArea()
+            drawing_area.connect('draw', self.do_drawing, user_avatar_path)
+            drawing_area.props.width_request = 96
+            drawing_area.props.height_request = 96
+            self.user_avatar.attach(drawing_area, 0, 0, 1, 1)
+        else:
+            icon_theme = Gtk.IconTheme.get_default()	
+            icon_pixbuf_us = icon_theme.load_icon(	
+                'avatar-default',	
+                256,	
+                0	
+            )	
+            icon_pixbuf = icon_pixbuf_us.scale_simple(	
+                96,	
+                96,	
+                GdkPixbuf.InterpType.BILINEAR	
+            )	
+            self.user_avatar_image = Gtk.Image.new_from_pixbuf(icon_pixbuf)	
+            self.user_avatar.attach(self.user_avatar_image, 0, 0, 1, 1)
         
         self.user_label = Gtk.Label(username)
         Gtk.StyleContext.add_class(self.user_label.get_style_context(), "h2")
