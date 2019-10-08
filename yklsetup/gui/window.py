@@ -123,6 +123,7 @@ class Window(Gtk.Window):
     
     def do_drawing(self, drawing_area, context, user_avatar_path):
         avatar_surf = cairo.ImageSurface.create_from_png(user_avatar_path)
+        print(avatar_surf)
         width = avatar_surf.get_width()
         height = avatar_surf.get_height()
         context.arc(48, 48, 48, 0, 2 * math.pi)
