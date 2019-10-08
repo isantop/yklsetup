@@ -128,10 +128,7 @@ class Window(Gtk.Window):
         context.arc(48, 48, 48, 0, 2 * math.pi)
         context.close_path()
         context.clip()
-        context.set_source_rgb(0.0, 0.0, 0.0)
-        context.fill()
         context.set_source_surface(avatar_surf, 0, 0)
-        print(context.get_source().get_surface().get_format())
         context.paint()
     
     def get_current_auth_state(self, user):
