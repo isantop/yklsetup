@@ -9,6 +9,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 gui/avatar.py - the GUI for yklsetup
 """
 
+import math
 import os
 
 import cairo
@@ -21,16 +22,12 @@ import yklsetup
 class UserImage(Gtk.Image):
     def __init__(self, parent):
         Gtk.Image.__init__(self, parent)
+    
+        self.surface = cairo.Image.surface(cairo.Format.ARGB32, 96, 96)
+        self.context = cairo.Context(self.surface)
 
-        self.username = yklsetup.system.get_username()
-        user_avatar_path = os.path.join(
-            '/var/lib/AccountsService/icons',
-            self.username
-        )
+        self.context.arc(96, 96, 48, 0, 2 * math.pi)
+        self.context.clip()
+        self.context.new_path()
 
-        self.image = cairo.ImageSurface.create_from_png(
-            user_avatar_path
-        )
-        width = self.image.get_width()
-        height = self.image.get_height()
-
+        

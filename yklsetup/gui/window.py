@@ -9,6 +9,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 gui.py - the GUI for yklsetup
 """
+
+import cairo
+import math
 import os
 import gi
 gi.require_version('Gtk', '3.0')
@@ -75,30 +78,11 @@ class Window(Gtk.Window):
         self.user_avatar.props.valign = Gtk.Align.END
         self.content_grid.attach(self.user_avatar, 0, 1, 1, 1)
 
-        if os.path.exists(user_avatar_path):
-            self.user_avatar_image = Gtk.Image()
-            self.user_avatar_image.set_from_file(user_avatar_path)
-            av_pixbuf_us = self.user_avatar_image.get_pixbuf()
-            av_pixbuf = av_pixbuf_us.scale_simple(
-                96,
-                96,
-                GdkPixbuf.InterpType.BILINEAR
-            )
-            self.user_avatar_image.set_from_pixbuf(av_pixbuf)
-        else:
-            icon_theme = Gtk.IconTheme.get_default()
-            icon_pixbuf_us = icon_theme.load_icon(
-                'avatar-default',
-                256,
-                0
-            )
-            icon_pixbuf = icon_pixbuf_us.scale_simple(
-                96,
-                96,
-                GdkPixbuf.InterpType.BILINEAR
-            )
-            self.user_avatar_image = Gtk.Image.new_from_pixbuf(icon_pixbuf)
-        self.user_avatar.attach(self.user_avatar_image, 0, 0, 1, 1)
+        drawing_area = Gtk.DrawingArea()
+        drawing_area.connect('draw', self.do_drawing, user_avatar_path)
+        drawing_area.props.width_request = 96
+        drawing_area.props.height_request = 96
+        self.user_avatar.attach(drawing_area, 0, 0, 1, 1)
         
         self.user_label = Gtk.Label(username)
         Gtk.StyleContext.add_class(self.user_label.get_style_context(), "h2")
@@ -121,6 +105,19 @@ class Window(Gtk.Window):
         self.login_switch.set_active(self.get_current_auth_state(username))
         self.login_switch.connect("notify::active", self.on_switch_activated)
         self.switch_grid.attach(self.login_switch, 1, 0, 1, 1)
+    
+    def do_drawing(self, drawing_area, context, user_avatar_path):
+        avatar_surf = cairo.ImageSurface.create_from_png(user_avatar_path)
+        width = avatar_surf.get_width()
+        height = avatar_surf.get_height()
+        context.arc(48, 48, 48, 0, 2 * math.pi)
+        context.close_path()
+        context.clip()
+        context.set_source_rgb(0.0, 0.0, 0.0)
+        context.fill()
+        context.set_source_surface(avatar_surf, 0, 0)
+        print(context.get_source().get_surface().get_format())
+        context.paint()
     
     def get_current_auth_state(self, user):
         auths = yklsetup.system.get_auths()
