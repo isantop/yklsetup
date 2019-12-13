@@ -58,6 +58,37 @@ def run_pyflakes3():
     args = [os.path.join(TREE, name) for name in names]
     return run_under_same_interpreter('flakes', script, args)
 
+class Deps(Command):
+    """Install dependencies."""
+    description = "Install dependencies"
+
+    user_options = [
+        ('apt', None, 'Use APT to install dependencies (default)')
+    ]
+
+    def initialize_options(self):
+        self.apt = 1
+    
+    def finalize_options(self):
+        pass
+    
+    def run(self):
+        if self.apt:
+            # libpam-yubico yubikey-personalization
+            subprocess.run(
+                [
+                    'sudo', 'apt', 'install', 
+                    'libpam-yubico', 'yubikey-personalization'
+                ]
+            )
+            input(
+                'We need to reconfigure, change the "mode=" to be '
+                '"mode=challenge-response", then leave all other options as '
+                'their defaults. Press ENTER to continue'
+            )
+            subprocess.run(
+                ['sudo', 'dpkg-reconfigure', 'libpam-yubico']
+            )
 
 
 class Test(Command):
@@ -98,7 +129,7 @@ setup(
     license='ISC',
     packages=['yklsetup', 'yklsetup.gui'],
     scripts=['bin/yklsetup'],
-    cmdclass={'test': Test},
+    cmdclass={'test': Test, 'deps': Deps},
     data_files = [
         ('/usr/share/dbus-1/system-services', ['data/ro.santopiet.yklsetup.service']),
         ('/usr/share/polkit-1/actions', ['data/ro.santopiet.yklsetup.policy']),
