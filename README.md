@@ -1,2 +1,2 @@
 # yklsetup
-A simple took to set up Yubikey login on a GNOME Desktop
+A simple tool to set up Yubikey login on a GNOME Desktop
